@@ -80,9 +80,10 @@ def increments(angle):
     return int(angle * 180 / PI // 30) + 1 # one point every 20 degrees
 
 # draws the path as a series of discretized points
-def dot_draw(path):
+def dot_draw(pathData):
     # array of points for drone
     points = []
+    path = pathData[1]
 
     if path[1] == "CSC":
         # start/end angles for drone arc
@@ -93,13 +94,18 @@ def dot_draw(path):
         angle_1 = ((angle_1B - angle_1A) % (2*PI))
         INCREMENT_A = increments(angle_1)
         angle_increment_1 = angle_1 / INCREMENT_A
+        temp_array = []
 
         # discretizing points for drone arc
         for i in range(INCREMENT_A + 1):
             temp_x = path[6][0] + TURNRADIUS * math.cos(angle_1A + angle_increment_1 * i)
             temp_y = path[6][1] + TURNRADIUS * math.sin(angle_1A + angle_increment_1 * i)
 
-            points.append([temp_x, temp_y])
+            temp_array.append([temp_x, temp_y])
+
+        if pathData[0] == "RSR" or pathData[0] == "RSL":
+            temp_array = temp_array[::-1]
+        points += temp_array
 
         # start/end angles for waypoint arc
         angle_2A = path[3][0] * PI / 180
@@ -108,13 +114,18 @@ def dot_draw(path):
         angle_2 = (angle_2B - angle_2A) % (2*PI)
         INCREMENT_B = increments(angle_2)
         angle_increment_2 = angle_2 / INCREMENT_B
+        temp_array = []
 
         # discretizing points for waypoint arc
         for i in range(INCREMENT_B + 1):
             temp_x = path[7][0] + TURNRADIUS * math.cos(angle_2A + angle_increment_2 * i)
             temp_y = path[7][1] + TURNRADIUS * math.sin(angle_2A + angle_increment_2 * i)
 
-            points.append([temp_x, temp_y])
+            temp_array.append([temp_x, temp_y])
+
+        if pathData[0] == "LSR" or pathData[0] == "RSR":
+            temp_array = temp_array[::-1]
+        points += temp_array
 
         x_increment = (path[5][0] - path[4][0]) / INCREMENTS
         y_increment = (path[5][1] - path[4][1]) / INCREMENTS
@@ -132,13 +143,18 @@ def dot_draw(path):
         angle_1 = ((angle_1B - angle_1A) % (2*PI))
         INCREMENT_A = increments(angle_1)
         angle_increment_1 = angle_1 / INCREMENT_A
+        temp_array = []
 
         # discretizing points for arc 1
         for i in range(INCREMENT_A + 1):
             temp_x = path[5][0] + TURNRADIUS * math.cos(angle_1A + angle_increment_1 * i)
             temp_y = path[5][1] + TURNRADIUS * math.sin(angle_1A + angle_increment_1 * i)
 
-            points.append([temp_x, temp_y])
+            temp_array.append([temp_x, temp_y])
+
+        if pathData[0] == "RLR":
+            temp_array = temp_array[::-1]
+        points += temp_array
 
         # start/end angles for arc 2
         angle_2A = path[3][0] * PI / 180
@@ -147,13 +163,18 @@ def dot_draw(path):
         angle_2 = (angle_2B - angle_2A) % (2*PI)
         INCREMENT_B = increments(angle_2)
         angle_increment_2 = angle_2 / INCREMENT_B
+        temp_array = []
 
         # discretizing points for arc 2
         for i in range(INCREMENT_B + 1):
             temp_x = path[7][0] + TURNRADIUS * math.cos(angle_2A + angle_increment_2 * i)
             temp_y = path[7][1] + TURNRADIUS * math.sin(angle_2A + angle_increment_2 * i)
 
-            points.append([temp_x, temp_y])
+            temp_array.append([temp_x, temp_y])
+
+        if pathData[0] == "LRL":
+            temp_array = temp_array[::-1]
+        points += temp_array[1:-1]
 
         # start/end angles for arc 3
         angle_3A = path[4][0] * PI / 180
@@ -162,15 +183,20 @@ def dot_draw(path):
         angle_3 = (angle_3B - angle_3A) % (2*PI)
         INCREMENT_C = increments(angle_3)
         angle_increment_3 = angle_3 / INCREMENT_C
+        temp_array = []
 
         # discretizing points for arc 3
         for i in range(INCREMENT_C + 1):
             temp_x = path[6][0] + TURNRADIUS * math.cos(angle_3A + angle_increment_3 * i)
             temp_y = path[6][1] + TURNRADIUS * math.sin(angle_3A + angle_increment_3 * i)
 
-            points.append([temp_x, temp_y])
+            temp_array.append([temp_x, temp_y])
 
-    return points
+        if pathData[0] == "RLR":
+            temp_array = temp_array[::-1]
+        points += temp_array
+
+    return points[1:]
 
 # lat/long in float, angle in degrees
 def dubin(drone_lat, drone_long, drone_angle, point_lat, point_long, point_angle):
