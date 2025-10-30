@@ -8,10 +8,10 @@ TURNRADIUS          =   5
 
 # iterates through and finds the shortest (optimal) route
 def find_best(paths):
-    shortest = paths[0][0]
+    shortest = paths[0][1][0]
     ind = 0
     for i in range(len(paths)):
-        if paths[i][0] < shortest:
+        if paths[i][1][0] < shortest:
             ind = i
 
     return ind
