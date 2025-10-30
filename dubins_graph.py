@@ -39,10 +39,10 @@ def next_point(event):
 
 # iterates through and finds the shortest (optimal) route
 def find_best(paths):
-    shortest = paths[0][0]
+    shortest = paths[0][1][0]
     ind = 0
     for i in range(len(paths)):
-        if paths[i][0] < shortest:
+        if paths[i][1][0] < shortest:
             ind = i
 
     return ind
@@ -83,30 +83,30 @@ def find_path(ax):
 
     # CCC paths only work if drone & waypoint within 4 turn-radii
     if (dist < 4 * TURNRADIUS):
-        try: paths.append(RLR(drone_right, point_right, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("RLR", RLR(drone_right, point_right, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
-        try: paths.append(LRL(drone_left, point_left, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("LRL", LRL(drone_left, point_left, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
     # CSC paths only work if drone & waypoint are at least 2 turn-radii apart
     if (dist > 2 * TURNRADIUS):
-        try: paths.append(RSR(drone_right, point_right, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("RSR", RSR(drone_right, point_right, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
-        try: paths.append(LSL(drone_left, point_left, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("LSL", LSL(drone_left, point_left, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
-        try: paths.append(RSL(drone_right, point_left, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("RSL", RSL(drone_right, point_left, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
-        try: paths.append(LSR(drone_left, point_right, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("LSR", LSR(drone_left, point_right, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
     best_path = paths[find_best(paths)]
 
     if not DISCRETIZE_FLAG:
-        line_draw(best_path)
+        line_draw(best_path[1])
     else:
         dot_draw(best_path)
 
@@ -139,9 +139,10 @@ def increments(angle):
     return int(angle * 180 / PI // 30) + 1 # one point every 20 degrees
 
 # draws the path as a series of discretized points
-def dot_draw(path):
+def dot_draw(pathData):
     # array of points for drone
     points = []
+    path = pathData[1]
 
     if path[1] == "CSC":
         # start/end angles for drone arc
@@ -152,14 +153,21 @@ def dot_draw(path):
         angle_1 = ((angle_1B - angle_1A) % (2*PI))
         INCREMENT_A = increments(angle_1)
         angle_increment_1 = angle_1 / INCREMENT_A
+        temp_array = []
 
         # discretizing points for drone arc
         for i in range(INCREMENT_A + 1):
             temp_x = path[6][0] + TURNRADIUS * math.cos(angle_1A + angle_increment_1 * i)
             temp_y = path[6][1] + TURNRADIUS * math.sin(angle_1A + angle_increment_1 * i)
 
-            ax.plot(temp_x, temp_y, color='purple', marker='.')
-            points.append([temp_x, temp_y])
+            ax.plot(temp_x, temp_y, color='red', marker='.')
+
+            temp_array.append([temp_x, temp_y])
+
+        if pathData[0] == "RSR" or pathData[0] == "RSL":
+            temp_array = temp_array[::-1]
+        points += temp_array
+            
 
         # start/end angles for waypoint arc
         angle_2A = path[3][0] * PI / 180
@@ -168,14 +176,20 @@ def dot_draw(path):
         angle_2 = (angle_2B - angle_2A) % (2*PI)
         INCREMENT_B = increments(angle_2)
         angle_increment_2 = angle_2 / INCREMENT_B
+        temp_array = []
 
         # discretizing points for waypoint arc
         for i in range(INCREMENT_B + 1):
             temp_x = path[7][0] + TURNRADIUS * math.cos(angle_2A + angle_increment_2 * i)
             temp_y = path[7][1] + TURNRADIUS * math.sin(angle_2A + angle_increment_2 * i)
 
-            ax.plot(temp_x, temp_y, color='purple', marker='.')
-            points.append([temp_x, temp_y])
+            ax.plot(temp_x, temp_y, color='blue', marker='.')
+
+            temp_array.append([temp_x, temp_y])
+
+        if pathData[0] == "LSR" or pathData[0] == "RSR":
+            temp_array = temp_array[::-1]
+        points += temp_array
 
         x_increment = (path[5][0] - path[4][0]) / INCREMENTS
         y_increment = (path[5][1] - path[4][1]) / INCREMENTS
@@ -201,7 +215,7 @@ def dot_draw(path):
             temp_x = path[5][0] + TURNRADIUS * math.cos(angle_1A + angle_increment_1 * i)
             temp_y = path[5][1] + TURNRADIUS * math.sin(angle_1A + angle_increment_1 * i)
 
-            ax.plot(temp_x, temp_y, color='purple', marker='.')
+            ax.plot(temp_x, temp_y, color='pink', marker='.')
             points.append([temp_x, temp_y])
 
         # start/end angles for arc 2
@@ -217,7 +231,7 @@ def dot_draw(path):
             temp_x = path[7][0] + TURNRADIUS * math.cos(angle_2A + angle_increment_2 * i)
             temp_y = path[7][1] + TURNRADIUS * math.sin(angle_2A + angle_increment_2 * i)
 
-            ax.plot(temp_x, temp_y, color='purple', marker='.')
+            ax.plot(temp_x, temp_y, color='red', marker='.')
             points.append([temp_x, temp_y])
 
         # start/end angles for arc 3
@@ -233,9 +247,14 @@ def dot_draw(path):
             temp_x = path[6][0] + TURNRADIUS * math.cos(angle_3A + angle_increment_3 * i)
             temp_y = path[6][1] + TURNRADIUS * math.sin(angle_3A + angle_increment_3 * i)
 
-            ax.plot(temp_x, temp_y, color='purple', marker='.')
+            ax.plot(temp_x, temp_y, color='blue', marker='.')
             points.append([temp_x, temp_y])
 
+    # if pathData[0] == "LRL" or pathData[0] == "LSR" or pathData[0] == "LSL":
+    #     points = points[1:]
+
+    print(drone_pos)
+    print(points)
     return points
 
 # redraws canvas to include new waypoint + vector
