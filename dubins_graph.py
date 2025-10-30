@@ -270,7 +270,7 @@ def dot_draw(pathData):
 
     print(drone_pos)
     print(points)
-    return points
+    return points[1:]
 
 # redraws canvas to include new waypoint + vector
 def draw(ax):
