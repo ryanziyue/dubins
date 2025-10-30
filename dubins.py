@@ -52,24 +52,24 @@ def find_path(drone_pos, point_pos, drone_vec, point_vec):
 
     # CCC paths only work if drone & waypoint within 4 turn-radii
     if (dist < 4 * TURNRADIUS):
-        try: paths.append(RLR(drone_right, point_right, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("RLR", RLR(drone_right, point_right, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
-        try: paths.append(LRL(drone_left, point_left, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("LR", LRL(drone_left, point_left, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
     # CSC paths only work if drone & waypoint are at least 2 turn-radii apart
     if (dist > 2 * TURNRADIUS):
-        try: paths.append(RSR(drone_right, point_right, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("RSR", RSR(drone_right, point_right, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
-        try: paths.append(LSL(drone_left, point_left, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("LSL", LSL(drone_left, point_left, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
-        try: paths.append(RSL(drone_right, point_left, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("RSL", RSL(drone_right, point_left, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
-        try: paths.append(LSR(drone_left, point_right, drone_pos, point_pos, TURNRADIUS))
+        try: paths.append(("LSR", LSR(drone_left, point_right, drone_pos, point_pos, TURNRADIUS)))
         except: pass
 
     best_path = paths[find_best(paths)]
