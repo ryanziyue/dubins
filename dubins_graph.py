@@ -209,14 +209,19 @@ def dot_draw(pathData):
         angle_1 = ((angle_1B - angle_1A) % (2*PI))
         INCREMENT_A = increments(angle_1)
         angle_increment_1 = angle_1 / INCREMENT_A
+        temp_array = []
 
         # discretizing points for arc 1
         for i in range(INCREMENT_A + 1):
             temp_x = path[5][0] + TURNRADIUS * math.cos(angle_1A + angle_increment_1 * i)
             temp_y = path[5][1] + TURNRADIUS * math.sin(angle_1A + angle_increment_1 * i)
 
-            ax.plot(temp_x, temp_y, color='pink', marker='.')
-            points.append([temp_x, temp_y])
+            ax.plot(temp_x, temp_y, color='red', marker='.')
+            temp_array.append([temp_x, temp_y])
+        
+        if pathData[0] == "RLR":
+            temp_array = temp_array[::-1]
+        points += temp_array
 
         # start/end angles for arc 2
         angle_2A = path[3][0] * PI / 180
@@ -225,14 +230,19 @@ def dot_draw(pathData):
         angle_2 = (angle_2B - angle_2A) % (2*PI)
         INCREMENT_B = increments(angle_2)
         angle_increment_2 = angle_2 / INCREMENT_B
+        temp_array = []
 
         # discretizing points for arc 2
         for i in range(INCREMENT_B + 1):
             temp_x = path[7][0] + TURNRADIUS * math.cos(angle_2A + angle_increment_2 * i)
             temp_y = path[7][1] + TURNRADIUS * math.sin(angle_2A + angle_increment_2 * i)
 
-            ax.plot(temp_x, temp_y, color='red', marker='.')
-            points.append([temp_x, temp_y])
+            ax.plot(temp_x, temp_y, color='purple', marker='.')
+            temp_array.append([temp_x, temp_y])
+        
+        if pathData[0] == "LRL":
+            temp_array = temp_array[::-1]
+        points += temp_array[1:-1]
 
         # start/end angles for arc 3
         angle_3A = path[4][0] * PI / 180
@@ -241,6 +251,7 @@ def dot_draw(pathData):
         angle_3 = (angle_3B - angle_3A) % (2*PI)
         INCREMENT_C = increments(angle_3)
         angle_increment_3 = angle_3 / INCREMENT_C
+        temp_array = []
 
         # discretizing points for arc 3
         for i in range(INCREMENT_C + 1):
@@ -248,7 +259,11 @@ def dot_draw(pathData):
             temp_y = path[6][1] + TURNRADIUS * math.sin(angle_3A + angle_increment_3 * i)
 
             ax.plot(temp_x, temp_y, color='blue', marker='.')
-            points.append([temp_x, temp_y])
+            temp_array.append([temp_x, temp_y])
+        
+        if pathData[0] == "RLR":
+            temp_array = temp_array[::-1]
+        points += temp_array
 
     # if pathData[0] == "LRL" or pathData[0] == "LSR" or pathData[0] == "LSL":
     #     points = points[1:]
